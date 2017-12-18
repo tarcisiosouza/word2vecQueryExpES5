@@ -464,8 +464,8 @@ public class Query
 			queryExpansion.setArticles(articles);
 		
 			queryExpansion.extractSimilarTermsText(deepLearning,false);
-			nextQuery = queryExpansion.getNextQuery();
-			currentQueryString = addTermsCurrentQuery(currentQueryString,nextQuery);
+		//	nextQuery = queryExpansion.getNextQuery();
+		//	currentQueryString = addTermsCurrentQuery(currentQueryString,nextQuery);
 			//queryExpansion.extractSimilarTermsQuery(deepLearning, currentQueryString);
 			//queryExpansion.extractSimilarTermsQuery(deepLearning, annotations,entitiesCandidates);
 			//nextQuery = queryExpansion.getNextQuery();
