@@ -349,18 +349,18 @@ public class Query
 		sbRes.put(html.getSbRes(), precision);
 		
 		populateRetrivedDocuments();
-	
+	/*
 		if (field.contentEquals("url"))
 			queryExpansion.extractSimilarTermsUrls(deepLearning,gama);
 		else
 			queryExpansion.extractSimilarTermsText(deepLearning,false);
 		HashSet<String> nextQuery;
 		nextQuery = queryExpansion.getNextQuery();
-		int iter = 1;
-		String currentQueryString = null;
-	
-		//field = "text";
 		
+		String currentQueryString = null;
+	*/
+		//field = "text";
+		int iter = 1;
 		titlePlusDescription = preprocess.removePunctuation(titlePlusDescription);
 		titlePlusDescription = preprocess.removeStopWords(titlePlusDescription);
 		titlePlusDescription = preprocess.removeDuplicates(titlePlusDescription);
