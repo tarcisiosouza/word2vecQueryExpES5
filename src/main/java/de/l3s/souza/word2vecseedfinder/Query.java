@@ -372,7 +372,7 @@ public class Query
 		while (iter <= maxIter)
 		{
 			
-	        currentQueryString = addTermsCurrentQuery(bestQuery + " ",nextQuery);
+	        //currentQueryString = addTermsCurrentQuery(bestQuery + " ",nextQuery);
 
 		        currentQueryString = preprocess.removePunctuation(currentQueryString);
 		        currentQueryString = preprocess.removeStopWords(currentQueryString);
