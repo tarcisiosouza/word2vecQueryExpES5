@@ -357,10 +357,12 @@ public class Query
 		HashSet<String> nextQuery;
 		nextQuery = queryExpansion.getNextQuery();
 		
-		String currentQueryString = null;
+		
 	*/
 		//field = "text";
-		int iter = 1;
+		String currentQueryString = null;
+		int iter = maxIter+1;
+		
 		titlePlusDescription = preprocess.removePunctuation(titlePlusDescription);
 		titlePlusDescription = preprocess.removeStopWords(titlePlusDescription);
 		titlePlusDescription = preprocess.removeDuplicates(titlePlusDescription);
