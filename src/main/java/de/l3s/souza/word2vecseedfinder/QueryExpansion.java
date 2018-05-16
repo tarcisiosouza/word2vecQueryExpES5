@@ -807,8 +807,8 @@ public class QueryExpansion {
 		
 		int pseudoRelevantDoc = 0;
 		HashMap<String,Integer> scoreEntities = new HashMap<String,Integer> ();
-		String iniYear;
-		String endYear;
+		String iniYear="";
+		String endYear="";
 		ArrayList<String> entities = new ArrayList<String>();
 		String entity1 = null;
 		String entity2 = null;
