@@ -121,7 +121,7 @@
           </execution>
         </executions>
       </plugin>
-       <plugin>
+       <!--   plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.6</version>
         <configuration>
@@ -129,7 +129,7 @@
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
         </configuration>
-      </plugin> 
+      </plugin --> 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -148,8 +148,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.7.0</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
     </plugins>
