@@ -20,6 +20,7 @@ public class DataGenerationL2R {
 
 		private static String propFileName = "l2r.properties";
 		private static  Properties config;
+		private static String collection;
 		private static int relevance;
 		private static int candidateTerms;
 		private static String query_id;
@@ -51,6 +52,7 @@ public class DataGenerationL2R {
 			}
 			
 			features = config.getProperty("features");
+			collection = config.getProperty("colleciton");
 			lambda = Double.parseDouble(config.getProperty("lambda"));
 			windowsize=Integer.parseInt(config.getProperty("windowsize"));
 			windowsizePRF=Integer.parseInt(config.getProperty("windowsizePRF"));
@@ -64,9 +66,9 @@ public class DataGenerationL2R {
 			String line;
 			int subtopicNumber = 0;
 			
-			Query query = new Query (totalFeedbackDocuments,"text");
+			Query query = new Query (totalFeedbackDocuments,"text",collection);
 			Term term = new Term("");
-			TermUtils termUtils = new TermUtils ("","/home/souza/NTCIR-eval/ntcir11_Temporalia_taskdata/TaskData/TIR/",term,windowsize,lambda,features);
+			TermUtils termUtils = new TermUtils ("","/home/souza/NTCIR-eval/ntcir11_Temporalia_taskdata/TaskData/TIR/",term,windowsize,lambda,features,collection);
 			while ((line=br.readLine())!=null)
 			{
 				

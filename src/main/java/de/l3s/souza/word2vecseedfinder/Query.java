@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.StringTokenizer;
@@ -54,6 +55,8 @@ public class Query
 	private HashMap<StringBuilder,Double> sbRes = new HashMap<StringBuilder,Double> ();
 	private HashSet<String> usedQueries = new HashSet<String>();
 	private int terms;
+	private boolean tempSeg;
+	private String ntcir = "";
 	private ElasticMain elasticUtil;
 	private double alpha;
 	private double gama;
@@ -70,11 +73,12 @@ public class Query
 	private String runname;
 	private static HeidelTimeStandalone heidelTime;
 	private int maxDoc;
+	private boolean debug;
 	private static HashMap <String,String> urls = new HashMap<String,String>();
 	private static ArrayList<String> vowels;
 	private String currentQuery;
 	private static StringBuilder sb = new StringBuilder();
-	private String nextQuery;
+	private HashSet<String> nextQuery;
 	private HashMap<String, Article> articlesWithoutDuplicates;
 	private HashMap<LivingKnowledgeSnapshot, Double> articles;
 	private HashMap<String,Integer> queryTerms;
@@ -93,6 +97,7 @@ public class Query
 	private String field;
 	private String topic;
 	private int limit;
+	private boolean tempkg;
 	public HashMap<String, Article> getArticlesWithoutDuplicates() {
 		return articlesWithoutDuplicates;
 	}
@@ -146,7 +151,7 @@ public class Query
 	}
 
 	
-	public String buildNextQuery () throws IOException
+/*	public String buildNextQuery () throws IOException
 	{
 		
 		//extractSimilarTermsCurrentQuery (maxSimTerms);
@@ -155,11 +160,12 @@ public class Query
 		
 		return nextQuery;
 	}
-
-	public Query(int totalDocuments,String field) throws Exception {
+*/
+	public Query(int totalDocuments,String field,String ntcir) throws Exception {
 	
+		this.ntcir = ntcir;
 		preprocess = new PreProcess();
-		elasticUtil = new ElasticMain ("",limit,field,"souza_livingknowledge");
+		elasticUtil = new ElasticMain ("",limit,field,"souza_livingknowledge_2");
 		this.field=field;
 		setLimit(totalDocuments);
 	
@@ -177,13 +183,13 @@ public class Query
 	
 	public void setTopic(String topic) {
 		this.topic = topic;
-		deepLearning.loadModel("/home/souza/ntcir11_models/"+topic+".txt");
+		//deepLearning.loadModel("/home/souza/ntcir11_models/"+topic+".txt");
 	}
 
 	public void processCurrentQuery () throws Exception
 	{
 		processQuery(currentQuery,field,"0");
-		queryExpansion = new QueryExpansion(maxSimTerms,topic,articles,preprocess);
+		queryExpansion = new QueryExpansion(maxSimTerms,topic,articles,preprocess,ntcir);
 	}
 	
 	public HashMap<LivingKnowledgeSnapshot, Double> getArticles() {
@@ -201,15 +207,26 @@ public class Query
 	}
 	//
 	public Query(int maxUsedFreqTerm,String runname, int limit,String field,int terms, int maxSimTerms,
-			int candidateTerms, int maxDoc, int maxIter, double alpha,double beta,double gama,double scoreParam,boolean L2r) throws Exception {
+			int candidateTerms, int maxDoc, int maxIter, double alpha,double beta,double gama,double scoreParam,boolean L2r, String ntcir,boolean debug,
+			boolean tempSeg,boolean tempkg) throws Exception {
 		
+	
 		super();
+		heidelTime = new HeidelTimeStandalone(Language.ENGLISH,
+                DocumentType.NEWS,
+                OutputType.TIMEML,
+                "/home/souza/workspace-neon-3/word2vecQueryExpES5/src/main/resources/config.props",
+                POSTagger.NO, true);
+		this.tempkg= tempkg;
+		this.tempSeg = tempSeg;
+		this.debug = debug;
+		this.ntcir = ntcir;
 		preprocess = new PreProcess();
 		this.limit = limit;
 		elasticUtil = new ElasticMain ("",limit,field,"souza_livingknowledge_2");
 		this.field=field;
 		deepLearning = new deepLearningUtils ("articles.txt");
-		//deepLearning.loadModel("/home/souza/Word2VecTrainSources/complete_corpus.txt");
+		deepLearning.loadModel("/home/souza/word2vecModels/pseudo_relevance_model.txt");
 		this.beta = beta;
 		urlScoreObject = new ScoreFunctions (scoreParam);
 		entitiesCandidates = new HashMap<String,Double>();
@@ -236,8 +253,10 @@ public class Query
 	}
 
 	public void run (TermUtils termUtils,String topicID, String title, String initialQuery,String titlePlusDescription,
-			String eventDate) throws Exception
+			String eventDate,boolean bm25,boolean subsetgeneration) throws Exception
 	{
+		
+		this.topic=topicID;
 		/*boolean result = false;
 		File fileToDelete = new File ("/home/souza/NTCIR-eval/ntcir11_Temporalia_taskdata/TaskData/TIR/"+topicID+"/"+topicID+"."+runname+".res");
 		try {
@@ -247,18 +266,20 @@ public class Query
 		
 			System.out.println (result);
 			}*/
+	
+		sbRes.clear();
 		
-		/*		BufferedWriter res = new BufferedWriter(new FileWriter("/home/souza/NTCIR-eval/ntcir12_Temporalia_taskdata/Evaluation Data/"+topicID+"/"+topicID+"."+runname+".res", true));
-		*/
-		BufferedWriter res = new BufferedWriter(new FileWriter("/home/souza/NTCIR-eval/ntcir11_Temporalia_taskdata/TaskData/TIR/"+topicID+"/"+topicID+"."+runname+".res", true));
+		BufferedWriter res;
+		if (ntcir.contentEquals("ntcir_12"))
+			res = new BufferedWriter(new FileWriter("/home/souza/NTCIR-eval/ntcir12_Temporalia_taskdata/Evaluation Data/"+topicID+"/"+topicID+"."+runname+".res"));
+		else
+			res = new BufferedWriter(new FileWriter("/home/souza/NTCIR-eval/ntcir11_Temporalia_taskdata/TaskData/TIR_copy/"+topicID+"/"+topicID+"."+runname+".res"));
 		bw = new BufferedWriter(new FileWriter("output.txt", true));
 		BufferedWriter out = new BufferedWriter
     		    (new OutputStreamWriter(new FileOutputStream("word2vecseedfinder.html"),"UTF-8"));
-		
-		
+
 		  sb.append("<html>");
 		    sb.append("<head>");
-		    
 		    sb.append("<title> SeedFinder"+ field +" search Results");
 		    sb.append("</title>");
 		    sb.append("<style>");
@@ -292,7 +313,7 @@ public class Query
 		domains = new HashSet<String>();
 		//initialQuery = preprocess.removeStopWords(initialQuery);
 		//initialQuery = preprocess.removeDuplicates(initialQuery);
-		initialQuery = preprocess.removePunctuation(initialQuery);
+		//initialQuery = preprocess.removePunctuation(initialQuery);
 		title = preprocess.removeStopWords(title);
 		title = preprocess.removePunctuation(title);
 		title = preprocess.removeDuplicates(title);
@@ -302,7 +323,7 @@ public class Query
 		queryTerms = new HashMap<String,Integer>();
 		retrievedDocuments = new HashMap<LivingKnowledgeSnapshot, Double>();
 		similarTermsLinks = new HashSet<String>();
-		//new ElasticMain (initialQuery,limit,field,"souza_livingknowledge");
+		//new ElasticMain (initialQuery,limit,field,"souza_livingknowledge_2");
 		articlesWithoutDuplicates = new HashMap<String,Article>();
 		articles = new HashMap<LivingKnowledgeSnapshot,Double>();
 		finalDocSet = new HashMap<LivingKnowledgeSnapshot, Double>();
@@ -311,15 +332,23 @@ public class Query
 		System.out.println ("Processing query: "+initialQuery+" "+"iter: 0");
 		processQuery(initialQuery,field,"0");
 		usedQueries.add(initialQuery);
-	//	handleDuplicates(articles,"0");
-		
-		queryExpansion = new QueryExpansion(preprocess,termUtils,maxUsedFreqTerm,topicID,initialQuery,titlePlusDescription ,articlesWithoutDuplicates, articles, 
-				maxSimTerms, candidateTerms,terms,eventDate, alpha, beta,L2r);
+		handleDuplicates(articles,"0");
+		articles = (HashMap<LivingKnowledgeSnapshot, Double>) sortByComparator(articles,false);
 
+		if (subsetgeneration && bm25)
+		{
+			generateSubSets();
+		}
+	//	articles = urlScoreObject.urlScoreFunction(heidelTime,deepLearning,topicID, eventDate,articles,"0",urls,initialQuery);
+
+		queryExpansion = new QueryExpansion(heidelTime,preprocess,termUtils,maxUsedFreqTerm,topicID,initialQuery,titlePlusDescription ,articlesWithoutDuplicates, articles, 
+				maxSimTerms, candidateTerms,terms,eventDate, alpha, beta,L2r,ntcir,maxDoc,debug);
+
+		//queryExpansion.queryKG("");
 		evaluator = queryExpansion.getLivingKnowledgeEvaluator();
 		
 		evaluator.classifyDocuments(articles);
-		double precision = evaluator.getAvPrecision();
+		double precision = evaluator.getPrecisionat20();
 		if (precision>bestMAP)
 		{
 			bestMAP = precision;
@@ -329,7 +358,7 @@ public class Query
 		{
 			processQuery(title,field,"0");
 			evaluator.classifyDocuments(articles);
-			precision = evaluator.getAvPrecision();
+			precision = evaluator.getPrecisionat20();
 			if (precision>bestMAP)
 			{
 				bestMAP = precision;
@@ -338,7 +367,7 @@ public class Query
 			usedQueries.add(title);
 		}
 		
-		deepLearning.loadModel("/home/souza/ntcir11_models/"+topicID+".txt");
+		//deepLearning.loadModel("/home/souza/ntcir11_models/"+topicID+".txt");
 		
 		System.out.println("precision: "+ precision + " totalRelevantPRF: "+ evaluator.getTotalRelevantPRF());
 		HtmlOutput html = new HtmlOutput ();
@@ -360,9 +389,13 @@ public class Query
 		
 	*/
 		//field = "text";
-		String currentQueryString = null;
-		int iter = maxIter+1;
+		String currentQueryString = initialQuery;
+		int iter;
 		
+		if (bm25)
+			iter = maxIter+1;
+		else
+			iter = 1;
 		titlePlusDescription = preprocess.removePunctuation(titlePlusDescription);
 		titlePlusDescription = preprocess.removeStopWords(titlePlusDescription);
 		titlePlusDescription = preprocess.removeDuplicates(titlePlusDescription);
@@ -372,112 +405,65 @@ public class Query
 		while (iter <= maxIter)
 		{
 			
-	        //currentQueryString = addTermsCurrentQuery(bestQuery + " ",nextQuery);
-
-		        currentQueryString = preprocess.removePunctuation(currentQueryString);
-		        currentQueryString = preprocess.removeStopWords(currentQueryString);
-		        currentQueryString = preprocess.removeDuplicates(currentQueryString);
+			queryExpansion.setCurrentQuery(currentQueryString);
 			
-		        
-		        
-			if (usedQueries.contains(currentQueryString))
+			queryExpansion.setArticles(articles);
+		
+			if (runname.contains("word2vec_baseline"))	
+				queryExpansion.extractSimilarTermsQuery(deepLearning,currentQueryString);
+			else
 			{
-				if (!usedQueries.contains(title))
-				{
-					currentQueryString = title;
-					//queryExpansion.extractSimilarTermsText(deepLearning,false);
-					//nextQuery = queryExpansion.getNextQuery();
-					//currentQueryString = addTermsCurrentQuery(currentQueryString,nextQuery);	
-				
-				}
+				if (tempSeg)
+					queryExpansion.extractTermsFromTemporalSegments(false);
 				else
-					{
-					
-//						if (!usedQueries.contains(titlePlusDescription))
-	//					{
-						//	currentQueryString = titlePlusDescription;
-							currentQueryString = currentQueryString + " " + queryExpansion.extractSimilarTermsQuery(deepLearning, currentQueryString);
+				{
+					if (tempkg)
+						queryExpansion.extractTermsFromTemporalKG(deepLearning);
+					else
+						queryExpansion.extractSimilarTermsText(deepLearning, false);
 
-							if (usedQueries.contains(currentQueryString))
-							{
-								if (!currentQueryString.contentEquals(bestQuery))
-									currentQueryString = addTermsBestQuery (currentQueryString);
-								else
-									currentQueryString = currentQueryString + " " + queryExpansion.extractSimilarTermsQuery(deepLearning, currentQueryString);
-							/*	
-								int size = currentQueryString.length();
-								int position = 0;
-								while (usedQueries.contains(currentQueryString))
-								{
-									
-									if (position>size)
-										break;
-									
-									currentQueryString = currentQueryString + " " + queryExpansion.extractSimilarTermsQuery(deepLearning, currentQueryString,position);
-									position++;
-								}*/	
-								
-							}
-							//	queryExpansion.extractSimilarTermsText(deepLearning,false);
-						//	nextQuery = queryExpansion.getNextQuery();
-						//	currentQueryString = addTermsCurrentQuery(currentQueryString,nextQuery);
-							
-		//				}
-			//				else
-				//		{
-							//	currentQueryString = currentQueryString + " " + queryExpansion.extractSimilarTermsQuery(deepLearning, currentQueryString);
-					//	
-						//}
-					}
+				}	
 			}
-			
-			
+			nextQuery = queryExpansion.getNextQuery();
+			currentQueryString = addTermsCurrentQuery(currentQueryString,nextQuery);	
+	       // currentQueryString  = currentQueryString + " Ansar Pervaiz Hamaoka Nuclear Power Plant";
+
 			System.out.println ("Processing query: "+currentQueryString+" "+"iter: "+iter);
 			addQueryTerms(currentQueryString);
 			
 			processQuery(currentQueryString,field,Integer.toString(iter));
 				
 			usedQueries.add(currentQueryString);
-		//	articles = urlScoreObject.urlScoreFunction(heidelTime,deepLearning,topicID, eventDate,articles,Integer.toString(iter),urls,initialQuery);
+		//	articles = urlScoreObject.urlScoreFunction(heidelTime,deepLearning,topicID, eventDate,articles,"1",urls,initialQuery);
 		//	if (iter==maxIter)
 				handleDuplicates(articles,Integer.toString(iter));
 			
+		//	articles = (HashMap<LivingKnowledgeSnapshot, Double>) sortByComparator(articles,false);
+			//handleDuplicates(articles,Integer.toString(iter));
 			articles = (HashMap<LivingKnowledgeSnapshot, Double>) sortByComparator(articles,false);
-			
 			html.outputArticlesHtml(sb, articles, Integer.toString(iter), evaluator,topicID,runname);
 			populateRetrivedDocuments();
 			evaluator.classifyDocuments(articles);
-			precision = evaluator.getAvPrecision();
-			
-			if (precision>bestMAP)
+			precision = evaluator.getPrecisionat20();
+			bestMAP = precision;
+		/*	if (precision>bestMAP)
 			{
 				bestMAP = precision;
 				bestQuery = currentQueryString;
 			}
+			*/
+			sbResults.put(html.getSb(), evaluator.getPrecisionat20());
+			sbRes.put(html.getSbRes(), evaluator.getPrecisionat20());
 			
-			sbResults.put(html.getSb(), evaluator.getAvPrecision());
-			sbRes.put(html.getSbRes(), evaluator.getAvPrecision());
+			System.out.println("Precision: "+evaluator.getPrecisionat20());
 			
-			System.out.println("Precision: "+evaluator.getAvPrecision());
-			queryExpansion.setCurrentQuery(currentQueryString);
-			
-			queryExpansion.setArticles(articles);
-		
-			queryExpansion.extractSimilarTermsText(deepLearning,false);
-		//	nextQuery = queryExpansion.getNextQuery();
-		//	currentQueryString = addTermsCurrentQuery(currentQueryString,nextQuery);
-			//queryExpansion.extractSimilarTermsQuery(deepLearning, currentQueryString);
-			//queryExpansion.extractSimilarTermsQuery(deepLearning, annotations,entitiesCandidates);
-			//nextQuery = queryExpansion.getNextQuery();
-			//currentQueryString = addTermsCurrentQuery(currentQueryString,nextQuery);
-			//evaluateDocuments();
 			iter ++;
 			
 		}
 		
 		fitFinalDoc();
 		//finalDocSet = urlScoreObject.urlScoreFunction(heidelTime,deepLearning,topicID, eventDate,finalDocSet,Integer.toString(iter),urls,initialQuery);
-		sortFinalDoc();
+	//	sortFinalDoc();
 	//	evaluateDocuments();
 	//	sortFinalDoc();
 		deepLearning.closeFiles();
@@ -505,56 +491,29 @@ public class Query
 		StringBuilder sbFinalRes = new StringBuilder ();
 		for (Entry<StringBuilder,Double> s : sbResults.entrySet())
 		{
-			if (s.getValue() > higherPrecision)
-			{
+		/*	if (s.getValue() > higherPrecision)
+			{*/
 				higherPrecision = s.getValue();
 				sb = s.getKey();
 				
-			}
+			//}
 		}
 		
 		higherPrecision = 0.0f;
 		
 		for (Entry<StringBuilder,Double> s : sbRes.entrySet())
 		{
-			if (s.getValue() > higherPrecision)
-			{
+			/*if (s.getValue() > higherPrecision)
+			{*/
 				higherPrecision = s.getValue();
 				sbFinalRes = s.getKey();
 				
-			}
+			//}
 		}
+		
 		precisionAt20 = evaluator.getPrecisionAtn(sbFinalRes, 20);
 		nDCG = evaluator.getnDCGAtn(sbFinalRes, 20);
-		
-	/*	for(Entry<LivingKnowledgeSnapshot, Double> s : finalDocSet.entrySet())
-		{
-			
-			String relevance = evaluator.getArticleRelevance(s.getKey().getDocId());
-			
-		//	sbRes.append(s.getKey().getDocId() + "\n");
-			if (articleNumber > maxDoc)
-				break;
-			String snippet;
-			if (s.getKey().getText().length() <= 100)
-				snippet = s.getKey().getText();
-			else
-				snippet = s.getKey().getText().substring(0, 100);
-			BufferedWriter page = new BufferedWriter
-	    		    (new OutputStreamWriter(new FileOutputStream(articleNumber+".txt"),"UTF-8"));
-			sb.append("<tr>");
-			sb.append("<td>" + articleNumber + "</td>");
-			sb.append("<td>" + s.getKey().getDate() + "</td>");
-			sb.append("<td>" + s.getKey().getScore() + "</td>");
-			sb.append("<td>" + snippet + "</td>");
-			sb.append("<td>" + relevance + "</td>");
-			sb.append("<td><a href=\"" + articleNumber + ".txt"+"\">" + s.getKey().getUrl() + "</a>" + "</td>");
-			articleNumber++;
-			page.write(s.getKey().getText());
-			page.close();
-		}
-		sb.append("</table>");
-		sb.append("</body></html>");*/
+
 		out.write(sb.toString());
 		res.write(sbFinalRes.toString());
 		res.close();
@@ -567,6 +526,45 @@ public class Query
 		}
 		
 	}
+public void generateSubSets () throws IOException
+{
+	String number = topic.substring(0, 3);
+	BufferedWriter topics = new BufferedWriter
+		    (new OutputStreamWriter(new FileOutputStream(number+".txt",true),"UTF-8"));
+	int randSize;
+	
+	BufferedWriter overall = new BufferedWriter (new OutputStreamWriter (new FileOutputStream ("overallTopics.txt",true),"UTF-8"));
+	
+	ArrayList<String> randomArticles = new ArrayList<String>();
+	
+	for (Entry<LivingKnowledgeSnapshot,Double> s :articles.entrySet())
+	{
+		randomArticles.add(s.getKey().getText());
+	}
+	
+	randSize = randomArticles.size();
+	
+	HashSet<Integer> generated = new HashSet<Integer>();
+	Random randomGenerator = new Random ();
+	StringBuilder sb = new StringBuilder ();
+	int i = 0;
+	for (int value=0;value<1000;value++)
+	{
+		int randomInt = randomGenerator.nextInt(randSize);
+		while (generated.contains(randomInt))
+			randomInt = randomGenerator.nextInt(randSize);
+		
+		generated.add(randomInt);
+		sb.append(randomArticles.get(randomInt));
+		i++;
+		
+	}
+	
+	topics.write(sb.toString());
+	overall.write(sb.toString());
+	topics.close();
+	overall.close();
+}
 
 public double getPrecisionAt20() {
 		return precisionAt20;
@@ -646,12 +644,12 @@ public int getLimit() {
 		
 		for(Entry<LivingKnowledgeSnapshot, Double> s : articles2.entrySet()) {		
 			
-			if (urls.containsKey(s.getKey().getUrl()))
+			if (urls.containsKey(s.getKey().getTitle()))
 				continue;
 			else
 			{
 				artWithDup.put(s.getKey(),s.getValue());
-				urls.put(s.getKey().getUrl(),iter);
+				urls.put(s.getKey().getTitle(),iter);
 			}
 		}
 		
@@ -813,7 +811,7 @@ public int getLimit() {
 				currentQuery = currentQuery + iterator.next().toString();
 			}
 			else
-				currentQuery = currentQuery + iterator.next().toString() + " ";
+				currentQuery = currentQuery + " " + iterator.next().toString() + " ";
 			
 			position++;
 			

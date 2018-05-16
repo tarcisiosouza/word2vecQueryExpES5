@@ -30,19 +30,22 @@ public class LivingKnowledgeEvaluation {
 	private static int totalRelevant;
 	private int totalRelevantPRF;
 	private double avPrecision;
+	private double precisionat20;
 	private ArrayList<Point> BestprecRecall;
 	private double BestAvPrecision;
-	
+	private double BestPrecision;
 	public double getAvPrecision() {
 		return avPrecision;
 	}
 
-	public LivingKnowledgeEvaluation (String topic) throws IOException
+	public LivingKnowledgeEvaluation (String topic,String ntcir) throws IOException
 	{		
 		documents.clear();
 		totalRelevant = 0;
 		avPrecision = 0.0f;
+		precisionat20 = 0.0f;
 		BestAvPrecision = 0.0f;
+		BestPrecision = 0.0f;
 		setBestprecRecall(new ArrayList<Point>());
 	//	InputStream inputStream = LivingKnowledgeEvaluation.class.getClassLoader().getResourceAsStream(propFileName);
 		config = new Properties ();
@@ -54,9 +57,11 @@ public class LivingKnowledgeEvaluation {
 		}
 	*/
 		//NTCIR_VERSION = config.getProperty("ntcir_task");
-		NTCIR_VERSION = "ntcir11_Temporalia_taskdata";
-	//	root = "/home/souza/NTCIR-eval/"+NTCIR_VERSION+"/Evaluation Data/"+topic;
-		root = "/home/souza/NTCIR-eval/"+NTCIR_VERSION+"/TaskData/TIR/"+topic;	
+		if (ntcir.contentEquals("ntcir_12"))
+			root = "/home/souza/NTCIR-eval/ntcir12_Temporalia_taskdata/Evaluation Data/"+topic;
+		else
+			root = "/home/souza/NTCIR-eval/ntcir11_Temporalia_taskdata/TaskData/TIR/"+topic;	
+		
 		walk (root);
 	}
 	
@@ -117,7 +122,7 @@ public class LivingKnowledgeEvaluation {
 		int i = 0;
 		int relevant = 0;
 		double precision;
-		double precisionat20;
+		double precisionat20 = 0;
 		double recallat20;
 		double sumat20 = 0.0f;
 		double recall;
@@ -149,7 +154,7 @@ public class LivingKnowledgeEvaluation {
 					}
 					
 						precision = (double) relevant / i;
-						recall = (double) relevant / totalRetrieved;
+						recall = (double) relevant / totalRelevant;
 						Point point = new Point ();
 						point.setPrecision(precision);
 						point.setRecall(recall);
@@ -170,7 +175,7 @@ public class LivingKnowledgeEvaluation {
 					
 					
 						precision = (double) relevant/i;
-						recall = (double) relevant / totalRetrieved;
+						recall = (double) relevant / totalRelevant;
 						Point point = new Point ();
 						point.setPrecision(precision);
 						point.setRecall(recall);
@@ -193,7 +198,7 @@ public class LivingKnowledgeEvaluation {
 				classified.put(article.getDocId(), (double)0);
 				
 					precision = (double) relevant / i;
-					recall = (double) relevant / totalRetrieved;
+					recall = (double) relevant / totalRelevant;
 					Point point = new Point ();
 					point.setPrecision(precision);
 					point.setRecall(recall);
@@ -209,14 +214,27 @@ public class LivingKnowledgeEvaluation {
 		else
 			 avPrecision = (double) sumat20/total;
 		
-		if (BestAvPrecision <= avPrecision)
-		{
+		//if (precisionat20 > BestPrecision)
+			BestPrecision = precisionat20;
+		
+		/*if (BestAvPrecision <= avPrecision)
+		{*/
 			BestAvPrecision = avPrecision;
 			setBestprecRecall(precRecall);
-		}
+	//	}
+		
+		this.precisionat20 = precisionat20;
 		return classified;
 	}
 	
+	public double getPrecisionat20() {
+		return precisionat20;
+	}
+
+	public void setPrecisionat20(double precisionat20) {
+		this.precisionat20 = precisionat20;
+	}
+
 	public int getTotalRelevantPRF() {
 		return totalRelevantPRF;
 	}

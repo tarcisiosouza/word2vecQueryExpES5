@@ -45,9 +45,9 @@ public class TermUtils {
 	private ArrayList<Integer> positionsTerm = new ArrayList<Integer>();
 	private ArrayList<Integer> positionsQueryTerms = new ArrayList<Integer>();
 	private HashMap<LivingKnowledgeSnapshot,Double> feedbackDocuments = new HashMap<LivingKnowledgeSnapshot,Double> ();
-	public TermUtils (String topic, String path, Term term, int windowSize,double lambda, String features) throws Exception
+	public TermUtils (String topic, String path, Term term, int windowSize,double lambda, String features,String ntcir) throws Exception
 	{
-		queryUtil = new Query (1,"id");
+		queryUtil = new Query (1,"id",ntcir);
 		this.term = term;
 		this.features = features;
 		this.topic = topic;

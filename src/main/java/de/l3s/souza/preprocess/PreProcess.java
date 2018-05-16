@@ -173,7 +173,7 @@ public class PreProcess {
 			String newStr = "";
 			for (int i=0;i<str.length();i++)
 			{
-				if (Character.isSpaceChar(str.charAt(i)) || Character.isAlphabetic(str.charAt(i)))
+				if (Character.isSpaceChar(str.charAt(i)) || Character.isAlphabetic(str.charAt(i)) || Character.isDigit(str.charAt(i)))
 					newStr = newStr + str.charAt(i);
 			}
 			
@@ -199,6 +199,8 @@ public class PreProcess {
 			String newText = "";
 			char[] strChar;
 			
+			if (text==null)
+				return "";
 			strChar = text.toCharArray();
 				
 			for (int i=0;i<strChar.length;i++)

@@ -37,7 +37,7 @@ public class L2RfeaturesTest
     public void testApp() throws Exception
     {
     	Term term = new Term ("of");
-    	TermUtils termUtils = new TermUtils ("001a","/home/souza/NTCIR-eval/ntcir11_Temporalia_taskdata/TaskData/TIR/",term,5,0.7,"1,2,3,4,5,6,7,8,9");
+    	TermUtils termUtils = new TermUtils ("001a","/home/souza/NTCIR-eval/ntcir11_Temporalia_taskdata/TaskData/TIR/",term,5,0.7,"1,2,3,4,5,6,7,8,9","nctir_11");
     //	term = termUtils.calculateL2Rfeatures("killers stress most");
     	System.out.println("");
     }

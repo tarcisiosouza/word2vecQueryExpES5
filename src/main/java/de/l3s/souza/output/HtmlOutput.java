@@ -37,7 +37,7 @@ public class HtmlOutput {
 		sb.append("<tr>");
 		sb.append("<th>Rank</th>");
 		sb.append("<th>doc-id</th>");
-		sb.append("<th>Timestamp</th>");
+		//sb.append("<th>Timestamp</th>");
 		sb.append("<th>score</th>");
 		sb.append("<th>article</th>");
 		sb.append("<th>relevance</th>");
@@ -53,17 +53,23 @@ public class HtmlOutput {
 			sbRes.append(s.getKey().getDocId() + "\n");
 
 			String snippet;
-			if (s.getKey().getText().length() <= 500)
-				snippet = s.getKey().getText();
-			else
-				snippet = s.getKey().getText().substring(0, 500);
 			
+			try {
+				if (s.getKey().getText().length() <= 500)
+					snippet = s.getKey().getText();
+				else
+					snippet = s.getKey().getText().substring(0, 500);
+			} catch (Exception e)
+			{
+				snippet = " ";
+				//System.out.println("empty text");
+			}
 			sb.append("<tr>");
 			sb.append("<td>" + rank + "</td>");
 			sb.append("<td>" + s.getKey().getDocId() + "</td>");
-			sb.append("<td>" + s.getKey().getDate() + "</td>");
+			//sb.append("<td>" + s.getKey().getDate() + "</td>");
 			sb.append("<td>" + s.getKey().getScore() + "</td>");
-			sb.append("<td>" + snippet + "</td>");
+			sb.append("<td>" + s.getKey().getTitle() + "</td>");
 			sb.append("<td>" + relevance + "</td>");
 			sb.append("<td><a href=\"" + s.getKey().getUrl() + ".txt"+"\">" + s.getKey().getUrl() + "</a>" + "</td>");
 			rank++;
