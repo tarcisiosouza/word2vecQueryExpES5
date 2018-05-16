@@ -809,7 +809,7 @@ public class QueryExpansion {
 		HashMap<String,Integer> scoreEntities = new HashMap<String,Integer> ();
 		String iniYear;
 		String endYear;
-		HashSet<String> entities = new HashSet<String>();
+		ArrayList<String> entities = new ArrayList<String>();
 		String entity1 = null;
 		String entity2 = null;
 		urlTerms.clear();
@@ -867,7 +867,26 @@ public class QueryExpansion {
 			
 		}
 		
-		System.out.println ();
+		
+		for (int i=0;i<entities.size();i++)
+		{
+			String e1 = entities.get(i);
+			for (int j=0;j<entities.size();j++)
+			{
+				if (i==j)
+					continue;
+				
+				String e2 = entities.get(j);
+				int score = coOccurEntities (e1,e2,iniYear,endYear);
+				scoreEntities.put(e1 + ","+e2, score);
+			}
+		}
+		
+		for (Entry<String,Integer> s: scoreEntities.entrySet())
+		{
+			System.out.println (s.getKey() + " " + s.getValue());
+		}
+		
 	/*	
 		for (Entry<LivingKnowledgeSnapshot, Double> s : articles.entrySet()) {
 			pseudoRelevantDoc++;
