@@ -74,7 +74,7 @@
 			<groupId>de.l3s.souza</groupId>
 			<artifactId>esfive</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>edu.umass.ciir</groupId>
