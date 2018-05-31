@@ -426,6 +426,8 @@ public class QueryExpansion {
 		String uri = "http://eventkginterface.l3s.uni-hannover.de/sparql?default-graph-uri=&query="
 				+ URLEncoder.encode(query, "UTF-8") + "&format=json";
 
+		System.out.println (query);
+		
 		String lines = readLines(uri);
 		JSONObject json = new JSONObject(lines);
 
