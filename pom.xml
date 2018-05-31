@@ -143,7 +143,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>de.l3s.souza.esfive:esfive</include>
+                                    <include>org.elasticsearch:elasticsearch</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
