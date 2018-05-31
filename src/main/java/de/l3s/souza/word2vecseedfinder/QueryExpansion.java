@@ -418,7 +418,7 @@ public class QueryExpansion {
 
 				"SELECT ?event ?st ?description" + "WHERE" + "{" + "?event dcterms:description ?description ."
 				+ "FILTER regex(?description, \"" + entity1 + "\") ." + "FILTER regex(?description, \"" + entity2
-				+ "\") ." + "FILTER (?st >= \"" + finalDate + "\"^^xsd:date) ." + "FILTER (?st >= \"" + initialDate
+				+ "\") ." + "FILTER (?st <= \"" + finalDate + "\"^^xsd:date) ." + "FILTER (?st >= \"" + initialDate
 				+ "\"^^xsd:date) ." + "GRAPH eventKG-g:event_kg { ?event sem:hasBeginTimeStamp ?st . }" +
 
 				"}";
