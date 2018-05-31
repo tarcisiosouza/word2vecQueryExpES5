@@ -39,6 +39,7 @@
 		<version>1.0-SNAPSHOT</version>
 		<scope>compile</scope>
 	</dependency> 
+	<!--  
   <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -51,6 +52,7 @@
             <version>2.6</version>
             <scope>test</scope>
         </dependency>
+        -->
 <dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
