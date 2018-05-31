@@ -428,10 +428,9 @@ public class QueryExpansion {
 		
 		String lines = readLines(uri);
 		JSONObject json = new JSONObject(lines);
-
 		
 		JSONArray arr = json.getJSONObject("results").getJSONArray("bindings");
-
+		System.out.println (query);
 		if (arr.isNull(0))
 			return 0;
 		
