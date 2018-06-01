@@ -66,7 +66,6 @@ public class RunApplication {
 	
 	public static void main (String args[]) throws Exception
 	{
-		System.out.println ("test");
 		
 		//LogManager.getLogManager().reset();
 		
@@ -159,6 +158,9 @@ public class RunApplication {
 		tempTopics.add("r");
 		tempTopics.add("p");
 		int indexTempTopics = 0;
+		
+		System.out.println ("testt");
+
 		while ((line=br.readLine())!=null)
 		{
 			
