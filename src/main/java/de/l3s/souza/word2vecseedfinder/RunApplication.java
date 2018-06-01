@@ -148,7 +148,8 @@ public class RunApplication {
 		String line;
 		String topic = null;
 		String atempQuery="";
-		
+		System.out.println ("testt");
+
 		Query query = new Query (maxUsedFreqTerm,runname,limit,field,terms,maxSimTerms,candidateTerms,maxDoc,
 				maxIter,alpha,beta,gama,scoreParam,L2r,collection,debug,tempSeg,tempkg);
 		
@@ -160,7 +161,6 @@ public class RunApplication {
 		tempTopics.add("p");
 		int indexTempTopics = 0;
 		
-		System.out.println ("testt");
 
 		while ((line=br.readLine())!=null)
 		{
