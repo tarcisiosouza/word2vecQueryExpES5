@@ -67,7 +67,8 @@ public class RunApplication {
 	public static void main (String args[]) throws Exception
 	{
 		
-		LogManager.getLogManager().reset();
+		
+		//LogManager.getLogManager().reset();
 		
 		ArrayList<String> random = new ArrayList<String>();
 		BufferedWriter global = new BufferedWriter
