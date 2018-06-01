@@ -95,6 +95,7 @@ public class RunApplication {
 			
 		}
 		
+		System.out.println ("xxxx");
 		totalPrecisionat20 = 0;
 		globalTotalPrecisionat20 = 0;
 		globalTotalnDCGat20 = 0;
