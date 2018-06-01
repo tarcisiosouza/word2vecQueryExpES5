@@ -78,7 +78,8 @@ public class RunApplication {
 		
 		BufferedWriter topics = new BufferedWriter
     		    (new OutputStreamWriter(new FileOutputStream("RandomTopics.txt"),"UTF-8"));
-		
+		System.out.println ("xxxx");
+
 		InputStream inputStream = RunApplication.class.getClassLoader().getResourceAsStream(propFileName);
 		config = new Properties ();
 		double totalMap = 0.0f;
@@ -95,7 +96,6 @@ public class RunApplication {
 			
 		}
 		
-		System.out.println ("xxxx");
 		totalPrecisionat20 = 0;
 		globalTotalPrecisionat20 = 0;
 		globalTotalnDCGat20 = 0;
